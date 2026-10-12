@@ -48,3 +48,16 @@ src/
 ├── services/      # Configuração do Axios e chamadas para a API do Back-End
 └── styles/        # Estilos globais e temas
 ```
+## 📅 Progresso do Desenvolvimento
+
+- [x] **Semana 1: Configuração do Ambiente e Estrutura Base**
+  - Setup do projeto React com Vite e TypeScript.
+  - Configuração do container Docker para o ambiente de desenvolvimento.
+  - Criação dos componentes estruturais de layout (`Header` e `Footer`).
+
+- [x] **Semana 2: Consumo da API (Read), Componentização e Comunicação com Docker**
+  - **Integração com API REST:** Configuração do cliente HTTP Axios (`api.ts`) integrado ao container Back-End Node.js/Express na porta `3000`.
+  - **Tratamento de Comunicação Cross-Origin:** Configuração de suporte e liberação de CORS no servidor para viabilizar as requisições originadas do Front-End Vite (`http://localhost:5173`).
+  - **Operação de Leitura (Read):** Implementação de requisições assíncronas (GET) na rota `/membros` para renderização dinâmica dos dados na interface.
+  - **Gestão Abrangente de Estados:** Controle completo de fluxo de dados com React Hooks (`useState` e `useEffect`), prevendo estados de carregamento (*loading*), tratamento visual de erros de conexão e exibição de estado vazio (*empty state*).
+  - **Componentização Reutilizável:** Modularização do layout através do componente `CardMembro` para isolar a responsabilidade de apresentação visual dos dados retornados da API.
