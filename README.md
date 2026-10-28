@@ -1,10 +1,10 @@
-# 🙏 Gestão do Grupo de Oração Agnus Dei
+# Gestão do Grupo de Oração Agnus Dei
 
 > **Aplicação Web desenvolvida para o Desafio Front-End 2026.2 da Comp Júnior.**
 
 ---
 
-## 📌 Sobre o Projeto
+## Sobre o Projeto
 
 O **Gestão do Grupo de Oração Agnus Dei** é uma aplicação web desenvolvida para organizar e gerenciar os membros, eventos e atividades do grupo de oração. O projeto visa centralizar as informações da comunidade em uma plataforma intuitiva, acessível e responsiva.
 
@@ -12,7 +12,7 @@ A aplicação consome dados de uma **API REST desenvolvida como Back-end própri
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 - **Front-End:** React + TypeScript (Vite)
 - **Roteamento:** React Router DOM
@@ -23,7 +23,7 @@ A aplicação consome dados de uma **API REST desenvolvida como Back-end própri
 
 ---
 
-## 💡 Justificativa das Escolhas Tecnológicas
+## Justificativa das Escolhas Tecnológicas
 
 _(Requisito obrigatório do desafio)_
 
@@ -37,7 +37,7 @@ _(Requisito obrigatório do desafio)_
 
 ---
 
-## 🏗️ Estrutura de Pastas
+## Estrutura de Pastas
 
 ```text
 src/
@@ -48,7 +48,7 @@ src/
 ├── services/      # Configuração do Axios e chamadas para a API do Back-End
 └── styles/        # Estilos globais e temas
 ```
-## 📅 Progresso do Desenvolvimento
+## Progresso do Desenvolvimento
 
 - [x] **Semana 1: Configuração do Ambiente e Estrutura Base**
   - Setup do projeto React com Vite e TypeScript.
@@ -61,3 +61,10 @@ src/
   - **Operação de Leitura (Read):** Implementação de requisições assíncronas (GET) na rota `/membros` para renderização dinâmica dos dados na interface.
   - **Gestão Abrangente de Estados:** Controle completo de fluxo de dados com React Hooks (`useState` e `useEffect`), prevendo estados de carregamento (*loading*), tratamento visual de erros de conexão e exibição de estado vazio (*empty state*).
   - **Componentização Reutilizável:** Modularização do layout através do componente `CardMembro` para isolar a responsabilidade de apresentação visual dos dados retornados da API.
+  
+  - [x] **Semana 3: Autenticação, Gerenciamento de Estado Global e Rotas Protegidas**
+  - **Contexto Global de Autenticação (`AuthContext`):** Criação do provedor de autenticação com React Context API para gerenciamento de estado do usuário logado e métodos de `login` e `logout`.
+  - **Gerenciamento de Sessão e Persistência:** Armazenamento seguro e inicialização automática de sessão persistente via `localStorage` com as chaves `@AgnusGestao:token` e `@AgnusGestao:user`.
+  - **Injeção Automática de Token:** Configuração das requisições via Axios enviando o cabeçalho `Authorization: Bearer <token>` para rotas protegidas da API.
+  - **Roteamento Protegido (`PrivateRoute`):** Implementação de componente guardião de rota interceptando acessos não autenticados e realizando o redirecionamento automático para a tela de `/login`.
+  - **Formulário de Autenticação e Navegação:** Tratamento e integração do formulário de login com navegação declarativa via `useNavigate` para redirecionamento imediato para o `/dashboard` após sucesso.
