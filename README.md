@@ -1,177 +1,439 @@
 # AgnusGestao — Front-End
 
-Aplicação web (React + TypeScript + Vite) do sistema de gestão do **Grupo de Oração Agnus Dei** (Paróquia São Vicente Ferrer, Formiga — MG). Atende três perfis: o **ADMIN** gerencia produtos, voluntários, vendas e caixa; o **VOLUNTARIO** registra vendas presenciais; o **CLIENTE** compra artigos religiosos online. Consome a API REST do repositório `agnus-backend`. Desafio Front-End 2026/2.
+Aplicação web do **AgnusGestao**, sistema de gestão desenvolvido para o **Grupo de Oração Agnus Dei**, da Paróquia São Vicente Ferrer, em Formiga — MG.
 
-> Entidades, DER, regras de negócio e a documentação completa dos endpoints estão no README do **back-end**.
+O projeto foi desenvolvido com React, TypeScript e Vite e integra-se a uma API REST para oferecer uma plataforma de gerenciamento de produtos, vendas, estoque e movimentações financeiras.
+
+O sistema possui três perfis de acesso, com funcionalidades específicas:
+
+- **ADMIN:** gerenciamento administrativo, produtos, voluntários, vendas e financeiro.
+- **VOLUNTARIO:** realização de vendas presenciais pelo ponto de venda (PDV).
+- **CLIENTE:** acesso à loja virtual para compra de artigos religiosos e acompanhamento de pedidos.
+
+Projeto desenvolvido como parte do **Desafio Front-End 2026.2**.
+
+---
 
 ## Sumário
 
-1. [Como executar](#1-como-executar)
-2. [Perfis, telas e permissões](#2-perfis-telas-e-permissões)
-3. [Funcionalidades](#3-funcionalidades)
-4. [Integração com a API](#4-integração-com-a-api)
-5. [Roteiro de testes](#5-roteiro-de-testes)
-6. [Tecnologias e estrutura](#6-tecnologias-e-estrutura)
+1. [Visão geral](#1-visão-geral)
+2. [Tecnologias utilizadas](#2-tecnologias-utilizadas)
+3. [Pré-requisitos](#3-pré-requisitos)
+4. [Instalação e execução](#4-instalação-e-execução)
+5. [Perfis de acesso e funcionalidades](#5-perfis-de-acesso-e-funcionalidades)
+6. [Rotas da aplicação](#6-rotas-da-aplicação)
+7. [Integração com o Back-End](#7-integração-com-o-back-end)
+8. [Estrutura do projeto](#8-estrutura-do-projeto)
+9. [Roteiro de testes](#9-roteiro-de-testes)
+10. [Segurança e observações](#10-segurança-e-observações)
 
 ---
 
-## 1. Como executar
+## 1. Visão geral
 
-**Pré-requisitos:** Node.js 20+, npm e o **back-end em execução** em `http://localhost:3002` (ele precisa estar com `FRONTEND_ORIGIN=http://localhost:5180`, que é o padrão do `.env.example` e do `docker-compose.yml` do back-end).
+O AgnusGestao foi desenvolvido para digitalizar e organizar os processos administrativos e comerciais do Grupo de Oração Agnus Dei.
 
-**Passo 1 — subir o back-end** (na pasta `agnus-backend`, seguindo o README dele):
+A aplicação oferece uma interface responsiva, com navegação adaptada ao perfil autenticado, permitindo que clientes, voluntários e administradores utilizem o sistema de acordo com suas permissões.
+
+**Repositórios do projeto:**
+
+- Front-End: https://github.com/luizafernandes07/ProjetoTraineeFront
+- Back-End: https://github.com/luizafernandes07/ProjetoTrainee
+
+A documentação das entidades, regras de negócio, banco de dados e endpoints está disponível no README do Back-End.
+
+---
+
+## 2. Tecnologias utilizadas
+
+| Tecnologia         | Finalidade                               |
+| ------------------ | ---------------------------------------- |
+| React 19           | Construção da interface                  |
+| TypeScript         | Tipagem estática e organização do código |
+| Vite 8             | Servidor de desenvolvimento e build      |
+| React Router DOM 7 | Navegação e gerenciamento de rotas       |
+| Axios              | Comunicação com a API REST               |
+| Context API        | Gerenciamento global de autenticação     |
+| Lucide React       | Biblioteca de ícones                     |
+| CSS                | Estilização e responsividade             |
+| Oxlint             | Análise estática do código               |
+
+---
+
+## 3. Pré-requisitos
+
+Antes de executar a aplicação, é necessário possuir:
+
+- Node.js compatível com Vite 8.
+- npm.
+- Git.
+- Back-End AgnusGestao configurado e em execução.
+- PostgreSQL disponível por meio da configuração do Back-End.
+
+O endereço padrão esperado para a API é:
+
+`http://localhost:3002`
+
+A aplicação Front-End utiliza a porta `5180`.
+
+---
+
+## 4. Instalação e execução
+
+### 4.1. Clonar o repositório
 
 ```bash
-cp .env.example .env     # preencher DB_PASSWORD, JWT_SECRET e ADMIN_PASSWORD
+git clone https://github.com/luizafernandes07/ProjetoTraineeFront.git
+cd ProjetoTraineeFront
+```
+
+### 4.2. Instalar as dependências
+
+```bash
+npm ci
+```
+
+### 4.3. Configurar as variáveis de ambiente
+
+Crie o arquivo `.env` a partir do modelo disponibilizado:
+
+**PowerShell:**
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Configure a variável:
+
+```env
+VITE_API_URL=http://localhost:3002/api
+```
+
+A URL deve apontar para o endereço da API, incluindo o prefixo `/api` e sem barra no final.
+
+O arquivo `.env` é local e não deve ser enviado ao GitHub.
+
+### 4.4. Iniciar o Back-End
+
+Na pasta do projeto Back-End, configure o ambiente conforme as instruções do README correspondente.
+
+Com o Docker configurado, execute:
+
+```bash
 docker compose up --build
 ```
 
-**Passo 2 — subir o front-end:**
+Certifique-se de que a API esteja disponível antes de iniciar o Front-End.
+
+### 4.5. Iniciar o Front-End
+
+Na pasta do projeto Front-End:
 
 ```bash
-git clone URL_DO_REPOSITORIO
-cd agnus-frontend
-npm install
-cp .env.example .env     # PowerShell: Copy-Item .env.example .env
 npm run dev
 ```
 
-Acesse **`http://localhost:5180`**. A porta é fixa (`strictPort`): se estiver ocupada, o Vite não inicia em outra.
+Acesse:
 
-| Comando           | Função                                   |
-| ----------------- | ---------------------------------------- |
-| `npm run dev`     | Servidor de desenvolvimento (porta 5180) |
-| `npm run build`   | Verifica os tipos e gera a pasta `dist/` |
-| `npm run preview` | Serve o build em `http://localhost:5180` |
-| `npm run lint`    | Análise estática (oxlint)                |
+**http://localhost:5180**
 
-**Variável de ambiente** (`.env`):
+A porta é fixa e utiliza `strictPort`. Caso esteja ocupada, será necessário liberar a porta antes de iniciar a aplicação.
 
-| Variável       | Valor                       | Observação                                                                                                              |
-| -------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `VITE_API_URL` | `http://localhost:3002/api` | URL-base da API, com `/api` e sem barra final. Se omitida, esse valor é o padrão. Reinicie o `npm run dev` ao alterá-la |
+### 4.6. Comandos disponíveis
 
-### Usuários para teste
-
-| Perfil       | Como obter                                                              |
-| ------------ | ----------------------------------------------------------------------- |
-| `ADMIN`      | Já existe: use `ADMIN_EMAIL` e `ADMIN_PASSWORD` do `.env` do back-end   |
-| `CLIENTE`    | Tela **Cadastro** (`/cadastro`), acessível por um link na tela de login |
-| `VOLUNTARIO` | Logado como ADMIN, menu **Voluntários** (`/cadastro-voluntario`)        |
-
-> ⚠️ **Recuperação de senha indisponível:** o servidor SMTP não está funcionando no momento. Em **Esqueci minha senha**, o usuário vê _"Não foi possível enviar o e-mail de recuperação. Verifique o servidor SMTP."_ e nenhum e-mail é enviado. Enquanto isso, o ADMIN redefine a senha em **Voluntários → editar** (para voluntários) ou pela API (qualquer perfil; passo a passo no README do back-end). A tela de nova senha (`/redefinir-senha`) só é alcançada pelo link do e-mail, portanto também não pode ser testada agora.
+| Comando           | Descrição                                               |
+| ----------------- | ------------------------------------------------------- |
+| `npm run dev`     | Inicia o servidor de desenvolvimento                    |
+| `npm run build`   | Verifica os tipos TypeScript e gera o build de produção |
+| `npm run preview` | Executa uma prévia do build                             |
+| `npm run lint`    | Executa a análise estática com Oxlint                   |
 
 ---
 
-## 2. Perfis, telas e permissões
+## 5. Perfis de acesso e funcionalidades
 
-Usuário sem login é redirecionado para `/login`. Usuário logado em rota de outro perfil é redirecionado para `/dashboard`. A API valida as permissões de novo; o bloqueio do front-end é só de navegação.
+### 5.1. ADMIN — Administrador
 
-| Rota                         | Quem acessa         | Tela                                                                |
-| ---------------------------- | ------------------- | ------------------------------------------------------------------- |
-| `/login`                     | Público             | Login                                                               |
-| `/cadastro`                  | Público             | Cadastro de cliente                                                 |
-| `/recuperar-senha`           | Público             | Solicita o e-mail de recuperação (indisponível: SMTP fora do ar)    |
-| `/redefinir-senha?token=...` | Público             | Define a nova senha (link do e-mail; indisponível: SMTP fora do ar) |
-| `/dashboard`                 | Logado              | ADMIN: painel; CLIENTE e VOLUNTARIO: loja                           |
-| `/loja`                      | CLIENTE, VOLUNTARIO | Catálogo de artigos religiosos                                      |
-| `/minhas-compras`            | CLIENTE             | Histórico de pedidos                                                |
-| `/caixa`                     | VOLUNTARIO          | Caixa presencial                                                    |
-| `/produtos`                  | ADMIN               | Gestão de produtos                                                  |
-| `/vendas-admin`              | ADMIN               | Vendas e pedidos                                                    |
-| `/financeiro`                | ADMIN               | Caixa e relatórios                                                  |
-| `/cadastro-voluntario`       | ADMIN               | Gestão de voluntários                                               |
+O administrador possui acesso às funcionalidades de gerenciamento do sistema.
 
-Após o login, todos vão para `/dashboard`. O `CLIENTE` não vê produtos da lanchonete (a API também os recusa em pedidos online).
+**Dashboard administrativo**
+
+- Painel inicial com acesso às principais áreas do sistema.
+- Navegação para produtos, vendas, voluntários e financeiro.
+
+**Gerenciamento de produtos**
+
+- Cadastro de produtos.
+- Edição de informações.
+- Desativação de produtos.
+- Gerenciamento de preços, categorias e estoque.
+
+**Gerenciamento de vendas**
+
+- Consulta de vendas presenciais e pedidos online.
+- Visualização das informações dos pedidos.
+- Atualização do status das vendas.
+- Acompanhamento dos pedidos e operações realizadas.
+
+**Gerenciamento de voluntários**
+
+- Cadastro de voluntários.
+- Edição de informações.
+- Desativação e reativação de usuários.
+
+**Financeiro**
+
+- Consulta de entradas, saídas e saldo.
+- Histórico de movimentações.
+- Registro manual de entradas e saídas.
+- Exclusão de lançamentos manuais.
+- Exportação de relatórios em Excel e CSV.
+
+### 5.2. VOLUNTARIO — Voluntário
+
+O voluntário possui acesso ao ponto de venda presencial (PDV).
+
+Funcionalidades:
+
+- Visualização do catálogo de produtos.
+- Acesso a artigos religiosos e produtos da lanchonete.
+- Seleção de produtos e quantidades.
+- Cálculo automático do total da venda.
+- Seleção da forma de pagamento: PIX ou DINHEIRO.
+- Registro de vendas presenciais.
+- Atualização do estoque após a venda.
+- Registro da entrada correspondente no caixa.
+
+O voluntário não possui acesso às funcionalidades administrativas exclusivas do ADMIN.
+
+### 5.3. CLIENTE — Cliente
+
+O cliente possui acesso à loja virtual, destinada exclusivamente à compra de artigos religiosos.
+
+**Loja virtual**
+
+- Visualização dos produtos disponíveis.
+- Consulta de preços e estoque.
+- Adição de produtos ao carrinho.
+
+**Carrinho**
+
+- Adição e remoção de itens.
+- Alteração de quantidades.
+- Cálculo automático do valor total.
+
+**Entrega**
+
+- Consulta de endereço pelo CEP utilizando a integração com ViaCEP.
+- Preenchimento do número do endereço.
+- Campo de complemento opcional.
+
+**Pagamento**
+
+- PIX.
+- DINHEIRO na entrega.
+- Possibilidade de informar o valor para troco em pagamentos em dinheiro.
+
+**Minhas compras**
+
+- Consulta do histórico de pedidos.
+- Visualização dos itens comprados.
+- Acompanhamento do status dos pedidos.
+
+O cliente não pode realizar compras de produtos da lanchonete. Essa restrição também é validada pelo Back-End.
 
 ---
 
-## 3. Funcionalidades
+## 6. Rotas da aplicação
 
-### CLIENTE
+As rotas são protegidas conforme o perfil autenticado.
 
-- **Loja:** lista artigos religiosos com preços e estoque.
-- **Carrinho:** adicionar, alterar quantidade, remover itens e ver o total.
-- **Entrega:** digitar o CEP busca o endereço (ViaCEP, via API); o cliente informa **número** e, se quiser, **complemento**.
-- **Pagamento na entrega:** `PIX` ou `DINHEIRO`; em dinheiro, pode pedir troco informando o valor.
-- **Minhas compras:** histórico dos pedidos com itens e status.
+| Rota                         | Acesso                | Funcionalidade                      |
+| ---------------------------- | --------------------- | ----------------------------------- |
+| `/login`                     | Público               | Autenticação                        |
+| `/cadastro`                  | Público               | Cadastro de clientes                |
+| `/recuperar-senha`           | Público               | Solicitação de recuperação de senha |
+| `/redefinir-senha?token=...` | Público               | Redefinição de senha                |
+| `/dashboard`                 | Usuários autenticados | Painel conforme o perfil            |
+| `/loja`                      | CLIENTE e VOLUNTARIO  | Catálogo de produtos                |
+| `/minhas-compras`            | CLIENTE               | Histórico de pedidos                |
+| `/caixa`                     | VOLUNTARIO            | Ponto de venda presencial           |
+| `/produtos`                  | ADMIN                 | Gerenciamento de produtos           |
+| `/vendas-admin`              | ADMIN                 | Gerenciamento de vendas             |
+| `/financeiro`                | ADMIN                 | Caixa e relatórios financeiros      |
+| `/cadastro-voluntario`       | ADMIN                 | Gerenciamento de voluntários        |
 
-### VOLUNTARIO
+O acesso às rotas é controlado no Front-End e as permissões são novamente verificadas pela API.
 
-- **Caixa presencial** (`/caixa`): escolher produtos (lanchonete e artigos religiosos), definir quantidades, ver o total, escolher `DINHEIRO` ou `PIX` e registrar. A venda baixa o estoque e lança a entrada no caixa.
-
-### ADMIN
-
-- **Painel:** atalhos para Produtos, Vendas e caixa, Voluntários e Caixa e financeiro.
-- **Produtos:** criar, editar e excluir (a exclusão desativa o produto). Campos: nome, descrição, categoria, preço e estoque.
-- **Vendas:** listar vendas e pedidos e alterar o status (aguardando retirada, aguardando entrega, concluído, cancelado). Cancelar devolve o estoque.
-- **Voluntários:** cadastrar, editar, desativar e reativar.
-- **Financeiro:** resumo do caixa (entradas, saídas e saldo), histórico, registro de entradas e saídas manuais, exclusão de lançamentos manuais e exportação do relatório em **Excel** ou **CSV**.
-
-### Em todas as telas
-
-- Indicador de carregamento nas requisições.
-- Mensagens de sucesso e de erro; erros da API aparecem com o texto vindo do back-end.
-- Tratados: API fora do ar, timeout de 10 s, erro HTTP e sessão inválida.
-- Layout responsivo (desktop, tablet e smartphone).
+Usuários não autenticados são direcionados para a tela de login. Usuários autenticados que tentam acessar áreas não permitidas são redirecionados conforme as regras de navegação da aplicação.
 
 ---
 
-## 4. Integração com a API
+## 7. Integração com o Back-End
 
-- Cliente HTTP único em `src/services/api.ts` (Axios), com a URL de `VITE_API_URL`.
-- Após o login, o token JWT e os dados do usuário ficam no `localStorage` (`@AgnusGestao:token` e `@AgnusGestao:user`), mantendo a sessão ao recarregar a página. Cada requisição envia `Authorization: Bearer <token>`. O logout limpa esses dados.
+A comunicação entre o Front-End e o Back-End é centralizada em:
 
-| Tela                        | Chamadas                                                                                                                                                |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Login, Cadastro             | `POST /auth/login`, `POST /auth/register`                                                                                                               |
-| Recuperar e redefinir senha | `POST /auth/forgot-password`, `POST /auth/reset-password`                                                                                               |
-| Loja, Produtos, Caixa       | `GET /produtos`; ADMIN: `POST`, `PUT`, `DELETE /produtos/:id`                                                                                           |
-| Loja (checkout)             | `GET /cep/:cep`, `POST /vendas/online`                                                                                                                  |
-| Minhas compras              | `GET /vendas/minhas-compras`                                                                                                                            |
-| Caixa presencial            | `POST /vendas/presencial`                                                                                                                               |
-| Vendas (ADMIN)              | `GET /vendas`, `PATCH /vendas/:id/status`                                                                                                               |
-| Voluntários (ADMIN)         | `GET`, `POST`, `PUT`, `DELETE /usuarios`                                                                                                                |
-| Financeiro (ADMIN)          | `GET /movimentacoes`, `GET /movimentacoes/resumo`, `POST /movimentacoes`, `DELETE /movimentacoes/:id`, `GET /movimentacoes/exportar?formato=excel\|csv` |
+`src/services/api.ts`
 
-Métodos, campos e respostas de cada endpoint: README do back-end.
+A aplicação utiliza Axios para realizar as requisições HTTP.
+
+### Autenticação
+
+O sistema utiliza autenticação baseada em JWT.
+
+Após o login:
+
+- O token de autenticação é armazenado no `localStorage`.
+- Os dados do usuário são armazenados para manter a sessão.
+- As requisições autenticadas enviam o token no cabeçalho `Authorization`.
+- O logout remove os dados de autenticação armazenados.
+
+### Principais endpoints utilizados
+
+| Funcionalidade            | Endpoint                                    |
+| ------------------------- | ------------------------------------------- |
+| Login                     | `POST /auth/login`                          |
+| Cadastro de cliente       | `POST /auth/register`                       |
+| Recuperação de senha      | `POST /auth/forgot-password`                |
+| Redefinição de senha      | `POST /auth/reset-password`                 |
+| Listagem de produtos      | `GET /produtos`                             |
+| Cadastro de produtos      | `POST /produtos`                            |
+| Edição de produtos        | `PUT /produtos/:id`                         |
+| Exclusão de produtos      | `DELETE /produtos/:id`                      |
+| Consulta de CEP           | `GET /cep/:cep`                             |
+| Venda online              | `POST /vendas/online`                       |
+| Histórico do cliente      | `GET /vendas/minhas-compras`                |
+| Venda presencial          | `POST /vendas/presencial`                   |
+| Listagem de vendas        | `GET /vendas`                               |
+| Atualização de status     | `PATCH /vendas/:id/status`                  |
+| Listagem de voluntários   | `GET /usuarios`                             |
+| Movimentações financeiras | `/movimentacoes`                            |
+| Resumo financeiro         | `GET /movimentacoes/resumo`                 |
+| Exportação financeira     | `GET /movimentacoes/exportar?formato=excel` |
+
+Os métodos, parâmetros, regras de acesso e estruturas das respostas estão documentados no README do Back-End e na documentação da API.
 
 ---
 
-## 5. Roteiro de testes
-
-Com back-end e front-end rodando, em `http://localhost:5180`:
-
-| Perfil         | Passos                                                                                                                                                                                                                                   |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Qualquer       | Login com credenciais inválidas mostra erro → login válido leva ao `/dashboard` → acessar uma rota de outro perfil volta ao `/dashboard` → sair e abrir `/produtos` leva ao login                                                        |
-| `ADMIN`        | Cadastrar, editar e excluir um produto → cadastrar um voluntário → registrar uma entrada e uma saída e conferir o resumo → exportar o relatório → alterar o status de um pedido                                                          |
-| `VOLUNTARIO`   | Entrar em `/caixa` → adicionar produtos e quantidades → escolher o pagamento → registrar a venda → conferir a baixa do estoque e a entrada no Financeiro (como ADMIN)                                                                    |
-| `CLIENTE`      | Cadastrar-se → adicionar itens ao carrinho, alterar e remover → informar CEP (ex.: `35570000`) e conferir o endereço → preencher número → escolher pagamento (com troco, se `DINHEIRO`) → finalizar → ver o pedido em **Minhas compras** |
-| Responsividade | Repetir os fluxos em desktop, tablet e smartphone (menus, formulários, tabelas e modais)                                                                                                                                                 |
-
----
-
-## 6. Tecnologias e estrutura
-
-| Tecnologia            | Uso                                 |
-| --------------------- | ----------------------------------- |
-| React 19 + TypeScript | Interface                           |
-| Vite                  | Servidor de desenvolvimento e build |
-| React Router DOM 7    | Rotas e proteção por perfil         |
-| Axios                 | Requisições à API                   |
-| Context API           | Sessão e perfil (`AuthContext`)     |
-| Lucide React          | Ícones                              |
+## 8. Estrutura do projeto
 
 ```text
-src/
-├── components/   layout (Header, Footer, MainLayout) e componentes reutilizáveis (VendaPresencial, CardMembro)
-├── contexts/     AuthContext.tsx — login, logout e perfil
-├── pages/        telas (Login, Loja, Produtos, VendasAdmin, FinanceiroAdmin, ...)
-├── routes/       AppRoutes.tsx — rotas e controle por perfil; PrivateRoute.tsx
-├── services/     api.ts — cliente Axios
-├── types/        tipos TypeScript
-├── assets/       imagens
-├── App.tsx
-└── main.tsx
+agnus-frontend/
+│
+├── imagens/
+│   └── agnus/
+│
+├── public/
+│   ├── favicon.svg
+│   └── icons.svg
+│
+├── src/
+│   ├── assets/
+│   │
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Header.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   └── MainLayout.tsx
+│   │   ├── CardMembro.tsx
+│   │   └── VendaPresencial.tsx
+│   │
+│   ├── contexts/
+│   │   └── AuthContext.tsx
+│   │
+│   ├── pages/
+│   │   ├── Login.tsx
+│   │   ├── Cadastro.tsx
+│   │   ├── CadastroVoluntario.tsx
+│   │   ├── Loja.tsx
+│   │   ├── MinhasCompras.tsx
+│   │   ├── Produtos.tsx
+│   │   ├── VendasAdmin.tsx
+│   │   ├── FinanceiroAdmin.tsx
+│   │   ├── CaixaVoluntario.tsx
+│   │   ├── RecuperarSenha.tsx
+│   │   ├── RedefinirSenha.tsx
+│   │   ├── Dashboard.tsx
+│   │   └── NotFound.tsx
+│   │
+│   ├── routes/
+│   │   ├── AppRoutes.tsx
+│   │   ├── PrivateRoute.tsx
+│   │   └── index.tsx
+│   │
+│   ├── services/
+│   │   └── api.ts
+│   │
+│   ├── styles/
+│   ├── types/
+│   │   └── auth.ts
+│   │
+│   ├── App.tsx
+│   ├── App.css
+│   ├── index.css
+│   └── main.tsx
+│
+├── .env.example
+├── .gitignore
+├── index.html
+├── package.json
+├── package-lock.json
+├── tsconfig.json
+├── tsconfig.app.json
+├── tsconfig.node.json
+├── vite.config.ts
+└── README.md
 ```
+
+---
+
+## 9. Roteiro de testes
+
+Com o Back-End e o Front-End em execução, acesse `http://localhost:5180`.
+
+| Perfil         | Cenários de teste                                                                                                                                           |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Público        | Login com credenciais inválidas e válidas; cadastro de cliente; navegação para recuperação de senha                                                         |
+| ADMIN          | Cadastrar, editar e desativar produtos; cadastrar voluntários; consultar vendas; atualizar status; registrar movimentações financeiras; exportar relatórios |
+| VOLUNTARIO     | Acessar o PDV; selecionar produtos e quantidades; escolher forma de pagamento; registrar venda; conferir atualização do estoque                             |
+| CLIENTE        | Realizar cadastro; adicionar produtos ao carrinho; consultar CEP; preencher endereço; selecionar pagamento; finalizar pedido; consultar histórico           |
+| Responsividade | Verificar menus, formulários, tabelas e componentes em desktop, tablet e smartphone                                                                         |
+
+### Validações importantes
+
+- Usuários sem autenticação não devem acessar rotas privadas.
+- Cada perfil deve acessar somente as funcionalidades autorizadas.
+- O cliente não deve conseguir comprar produtos da lanchonete.
+- O voluntário deve realizar vendas presenciais.
+- O administrador deve conseguir consultar as movimentações financeiras.
+- As operações realizadas no Front-End devem refletir corretamente no Back-End.
+
+---
+
+## 10. Segurança e observações
+
+- As permissões são controladas também no Back-End, não dependendo exclusivamente da interface.
+- O token JWT é enviado nas requisições autenticadas.
+- O arquivo `.env` não deve ser versionado.
+- O `.env.example` contém o modelo das variáveis necessárias para configuração.
+- Não devem ser publicados tokens, senhas ou credenciais reais.
+- O projeto utiliza tratamento de erros para falhas de comunicação com a API, requisições HTTP e sessões inválidas.
+- A aplicação possui indicadores de carregamento e mensagens de sucesso e erro.
+
+### Recuperação de senha
+
+A aplicação possui telas para solicitação de recuperação e redefinição de senha por token.
+
+**Atenção:** o funcionamento completo desse fluxo depende da configuração correta do serviço de e-mail SMTP no Back-End. Caso o SMTP não está funcionando, o envio das mensagens de recuperação não estará disponível.
+
+---
+
+## Considerações finais
+
+O Front-End do AgnusGestao foi desenvolvido para oferecer uma experiência de utilização organizada, responsiva e adaptada às necessidades do Grupo de Oração Agnus Dei.
+
+A separação por perfis permite organizar as operações de clientes, voluntários e administradores, enquanto a integração com o Back-End centraliza as regras de negócio, a autenticação e a persistência dos dados.
+
+**Projeto AgnusGestao — Grupo de Oração Agnus Dei**
+
+Desafio Front-End 2026.2.
