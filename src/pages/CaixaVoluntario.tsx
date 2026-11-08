@@ -1,0 +1,4 @@
+import React from 'react';
+import { MainLayout } from '../components/layout/MainLayout';
+import { VendaPresencial } from '../components/VendaPresencial';
+export const CaixaVoluntario: React.FC = () => <MainLayout><section style={{padding:'18px 0 36px'}}><div style={{background:'linear-gradient(120deg,#350d17,#681e2c)',color:'#fff8ed',padding:'28px',borderRadius:18,marginBottom:22}}><span style={{color:'#dfbd78',fontSize:11,fontWeight:800,letterSpacing:2}}>ÁREA DO VOLUNTÁRIO</span><h1 style={{fontFamily:'Georgia,serif',fontSize:34,margin:'10px 0'}}>Caixa presencial</h1><p style={{color:'#eadbd2',lineHeight:1.6,margin:0}}>Registre as vendas realizadas durante os encontros. O acesso ao histórico geral e à gestão de pedidos é exclusivo do administrador.</p></div><VendaPresencial/></section></MainLayout>;

@@ -1,14 +1,27 @@
-// src/components/layout/Header.tsx
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { LogOut, User, Menu, X } from 'lucide-react';
+import { LogOut, User, Menu, X, Package, UserPlus, ShoppingBag, ClipboardList, Wallet } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const [menuAberta, setMenuAberta] = useState(false);
+  const navigate = useNavigate();
+
+  const perfil = (user as any)?.perfil || (user as any)?.role;
 
   const scrollToSection = (id: string) => {
     setMenuAberta(false);
+    // Se estiver em outra página (ex: /produtos, /voluntarios), navega primeiro para a dashboard
+    if (window.location.pathname !== '/dashboard' && window.location.pathname !== '/') {
+      navigate('/dashboard');
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+      return;
+    }
+
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -60,13 +73,43 @@ export const Header: React.FC = () => {
       </div>
 
       {/* Navigation Desktop */}
-      <nav className="desktop-nav" style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-        <button onClick={() => scrollToSection('produtos')} style={navBtnStyle}>Lanchonete & Loja</button>
+      <nav className="desktop-nav" style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+        {perfil !== 'ADMIN' && <><button onClick={() => scrollToSection('produtos')} style={navBtnStyle}>{perfil === 'CLIENTE' ? 'Artigos religiosos' : 'Catálogo'}</button>
         <button onClick={() => scrollToSection('encontro')} style={navBtnStyle}>Encontro</button>
         <button onClick={() => scrollToSection('sobre')} style={navBtnStyle}>Sobre</button>
-        <button onClick={() => scrollToSection('musicas')} style={navBtnStyle}>Músicas</button>
-        <button onClick={() => scrollToSection('retiros')} style={navBtnStyle}>Retiros</button>
-        <button onClick={() => scrollToSection('doacao')} style={navBtnStyle}>Doação</button>
+        <button onClick={() => scrollToSection('musicas')} style={navBtnStyle}>Músicas</button></>}
+
+        {perfil === 'CLIENTE' && <button onClick={() => navigate('/minhas-compras')} style={navBtnStyle}><ClipboardList size={14}/> Minhas compras</button>}
+
+        {/* Caixa do voluntário e gestão administrativa são telas distintas. */}
+        {(perfil === 'ADMIN' || perfil === 'VOLUNTARIO') && (
+          <button 
+            onClick={() => navigate(perfil === 'ADMIN' ? '/vendas-admin' : '/caixa')} 
+            style={vendasBtnStyle}
+          >
+            <ShoppingBag size={14} /> {perfil === 'ADMIN' ? 'Vendas e pedidos' : 'Caixa presencial'}
+          </button>
+        )}
+
+        {/* ⚙️ Gestão Geral (Apenas ADMIN) */}
+        {perfil === 'ADMIN' && (
+          <>
+            <button 
+              onClick={() => navigate('/produtos')} 
+              style={adminBtnStyle}
+            >
+              <Package size={14} /> Produtos
+            </button>
+
+            <button onClick={() => navigate('/financeiro')} style={adminBtnStyle}><Wallet size={14}/> Financeiro</button>
+            <button 
+              onClick={() => navigate('/cadastro-voluntario')} 
+              style={adminBtnStyle}
+            >
+              <UserPlus size={14} /> Voluntários
+            </button>
+          </>
+        )}
       </nav>
 
       {/* User Actions & Mobile Toggle */}
@@ -126,12 +169,40 @@ export const Header: React.FC = () => {
           gap: '0.8rem',
           boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
         }}>
-          <button onClick={() => scrollToSection('produtos')} style={mobileNavBtnStyle}>Lanchonete & Loja</button>
+          {perfil === 'CLIENTE' && <button onClick={() => { setMenuAberta(false); navigate('/minhas-compras'); }} style={mobileNavBtnStyle}>Minhas compras</button>}
+          {perfil !== 'ADMIN' && <><button onClick={() => scrollToSection('produtos')} style={mobileNavBtnStyle}>{perfil === 'CLIENTE' ? 'Artigos religiosos' : 'Catálogo'}</button>
           <button onClick={() => scrollToSection('encontro')} style={mobileNavBtnStyle}>Encontro Semanal</button>
           <button onClick={() => scrollToSection('sobre')} style={mobileNavBtnStyle}>Sobre o Agnus Dei</button>
-          <button onClick={() => scrollToSection('musicas')} style={mobileNavBtnStyle}>Músicas & Louvores</button>
-          <button onClick={() => scrollToSection('retiros')} style={mobileNavBtnStyle}>Retiros Realizados</button>
-          <button onClick={() => scrollToSection('doacao')} style={mobileNavBtnStyle}>Apoie via PIX</button>
+          <button onClick={() => scrollToSection('musicas')} style={mobileNavBtnStyle}>Músicas & Louvores</button></>}
+          
+          {/* Ações Administrativas e de Voluntário no Mobile */}
+          {(perfil === 'ADMIN' || perfil === 'VOLUNTARIO') && (
+            <button 
+              onClick={() => { setMenuAberta(false); navigate(perfil === 'ADMIN' ? '/vendas-admin' : '/caixa'); }} 
+              style={{ ...mobileNavBtnStyle, backgroundColor: '#d4af37', color: '#4a0e17' }}
+            >
+              🛒 {perfil === 'ADMIN' ? 'Vendas e pedidos' : 'Caixa presencial'}
+            </button>
+          )}
+
+          {perfil === 'ADMIN' && (
+            <>
+              <button 
+                onClick={() => { setMenuAberta(false); navigate('/produtos'); }} 
+                style={{ ...mobileNavBtnStyle, backgroundColor: 'rgba(255, 255, 255, 0.15)', border: '1px solid #d4af37' }}
+              >
+                📦 Gerenciar Produtos (CRUD)
+              </button>
+
+              <button onClick={() => { setMenuAberta(false); navigate('/financeiro'); }} style={{ ...mobileNavBtnStyle, backgroundColor: 'rgba(255, 255, 255, 0.15)', border: '1px solid #d4af37' }}>💰 Caixa e financeiro</button>
+              <button 
+                onClick={() => { setMenuAberta(false); navigate('/cadastro-voluntario'); }} 
+                style={{ ...mobileNavBtnStyle, backgroundColor: 'rgba(255, 255, 255, 0.15)', border: '1px solid #d4af37' }}
+              >
+                👥 Cadastrar Voluntários
+              </button>
+            </>
+          )}
         </div>
       )}
     </header>
@@ -147,6 +218,34 @@ const navBtnStyle = {
   cursor: 'pointer',
   padding: '0.25rem 0.5rem',
   transition: 'color 0.2s'
+};
+
+const vendasBtnStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.3rem',
+  backgroundColor: '#d4af37',
+  color: '#4a0e17',
+  border: 'none',
+  padding: '0.35rem 0.75rem',
+  borderRadius: '6px',
+  cursor: 'pointer',
+  fontSize: '0.8rem',
+  fontWeight: 'bold'
+};
+
+const adminBtnStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.3rem',
+  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  color: '#ffffff',
+  border: '1px solid #d4af37',
+  padding: '0.35rem 0.75rem',
+  borderRadius: '6px',
+  cursor: 'pointer',
+  fontSize: '0.8rem',
+  fontWeight: 'bold'
 };
 
 const mobileNavBtnStyle = {

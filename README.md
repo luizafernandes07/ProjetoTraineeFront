@@ -1,80 +1,177 @@
-# Gestão do Grupo de Oração Agnus Dei
+# AgnusGestao — Front-End
 
-> **Aplicação Web desenvolvida para o Desafio Front-End 2026.2 da Comp Júnior.**
+Aplicação web (React + TypeScript + Vite) do sistema de gestão do **Grupo de Oração Agnus Dei** (Paróquia São Vicente Ferrer, Formiga — MG). Atende três perfis: o **ADMIN** gerencia produtos, voluntários, vendas e caixa; o **VOLUNTARIO** registra vendas presenciais; o **CLIENTE** compra artigos religiosos online. Consome a API REST do repositório `agnus-backend`. Desafio Front-End 2026/2.
 
----
+> Entidades, DER, regras de negócio e a documentação completa dos endpoints estão no README do **back-end**.
 
-## Sobre o Projeto
+## Sumário
 
-O **Gestão do Grupo de Oração Agnus Dei** é uma aplicação web desenvolvida para organizar e gerenciar os membros, eventos e atividades do grupo de oração. O projeto visa centralizar as informações da comunidade em uma plataforma intuitiva, acessível e responsiva.
-
-A aplicação consome dados de uma **API REST desenvolvida como Back-end próprio** no desafio full-stack, integrando operações de **CRUD completo** (Criação, Leitura, Atualização e Exclusão) e um **sistema de autenticação seguro** com rotas protegidas.
-
----
-
-## Tecnologias Utilizadas
-
-- **Front-End:** React + TypeScript (Vite)
-- **Roteamento:** React Router DOM
-- **Consumo de API:** Axios
-- **Estilização:** CSS / CSS Modules
-- **Back-End:** API Própria (Trilha Full-Stack)
-- **Controle de Versão:** Git & GitHub
+1. [Como executar](#1-como-executar)
+2. [Perfis, telas e permissões](#2-perfis-telas-e-permissões)
+3. [Funcionalidades](#3-funcionalidades)
+4. [Integração com a API](#4-integração-com-a-api)
+5. [Roteiro de testes](#5-roteiro-de-testes)
+6. [Tecnologias e estrutura](#6-tecnologias-e-estrutura)
 
 ---
 
-## Justificativa das Escolhas Tecnológicas
+## 1. Como executar
 
-_(Requisito obrigatório do desafio)_
+**Pré-requisitos:** Node.js 20+, npm e o **back-end em execução** em `http://localhost:3002` (ele precisa estar com `FRONTEND_ORIGIN=http://localhost:5180`, que é o padrão do `.env.example` e do `docker-compose.yml` do back-end).
 
-| Tecnologia             | Justificativa                                                                                                                                                               |
-| :--------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **React + TypeScript** | Proporciona tipagem estática e segurança na manipulação das respostas do back-end próprio, reduzindo erros durante o desenvolvimento e facilitando a manutenção do código.  |
-| **Vite**               | Oferece um ambiente de desenvolvimento extremamente rápido com Hot Module Replacement (HMR).                                                                                |
-| **Axios**              | Facilita a integração com o back-end, permitindo a criação de instâncias personalizadas com interceptores para envio de tokens (JWT) e tratamento centralizado de erros.    |
-| **React Router DOM**   | Permite criar uma navegação de Single Page Application (SPA) fluida, com controle dinâmico de rotas públicas e privadas.                                                    |
-| **Back-End Próprio**   | Desenvolvido para atender rigorosamente às necessidades específicas de regra de negócio do grupo de oração e garantir total integração entre o front-end e a base de dados. |
+**Passo 1 — subir o back-end** (na pasta `agnus-backend`, seguindo o README dele):
+
+```bash
+cp .env.example .env     # preencher DB_PASSWORD, JWT_SECRET e ADMIN_PASSWORD
+docker compose up --build
+```
+
+**Passo 2 — subir o front-end:**
+
+```bash
+git clone URL_DO_REPOSITORIO
+cd agnus-frontend
+npm install
+cp .env.example .env     # PowerShell: Copy-Item .env.example .env
+npm run dev
+```
+
+Acesse **`http://localhost:5180`**. A porta é fixa (`strictPort`): se estiver ocupada, o Vite não inicia em outra.
+
+| Comando           | Função                                   |
+| ----------------- | ---------------------------------------- |
+| `npm run dev`     | Servidor de desenvolvimento (porta 5180) |
+| `npm run build`   | Verifica os tipos e gera a pasta `dist/` |
+| `npm run preview` | Serve o build em `http://localhost:5180` |
+| `npm run lint`    | Análise estática (oxlint)                |
+
+**Variável de ambiente** (`.env`):
+
+| Variável       | Valor                       | Observação                                                                                                              |
+| -------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL` | `http://localhost:3002/api` | URL-base da API, com `/api` e sem barra final. Se omitida, esse valor é o padrão. Reinicie o `npm run dev` ao alterá-la |
+
+### Usuários para teste
+
+| Perfil       | Como obter                                                              |
+| ------------ | ----------------------------------------------------------------------- |
+| `ADMIN`      | Já existe: use `ADMIN_EMAIL` e `ADMIN_PASSWORD` do `.env` do back-end   |
+| `CLIENTE`    | Tela **Cadastro** (`/cadastro`), acessível por um link na tela de login |
+| `VOLUNTARIO` | Logado como ADMIN, menu **Voluntários** (`/cadastro-voluntario`)        |
+
+> ⚠️ **Recuperação de senha indisponível:** o servidor SMTP não está funcionando no momento. Em **Esqueci minha senha**, o usuário vê _"Não foi possível enviar o e-mail de recuperação. Verifique o servidor SMTP."_ e nenhum e-mail é enviado. Enquanto isso, o ADMIN redefine a senha em **Voluntários → editar** (para voluntários) ou pela API (qualquer perfil; passo a passo no README do back-end). A tela de nova senha (`/redefinir-senha`) só é alcançada pelo link do e-mail, portanto também não pode ser testada agora.
 
 ---
 
-## Estrutura de Pastas
+## 2. Perfis, telas e permissões
+
+Usuário sem login é redirecionado para `/login`. Usuário logado em rota de outro perfil é redirecionado para `/dashboard`. A API valida as permissões de novo; o bloqueio do front-end é só de navegação.
+
+| Rota                         | Quem acessa         | Tela                                                                |
+| ---------------------------- | ------------------- | ------------------------------------------------------------------- |
+| `/login`                     | Público             | Login                                                               |
+| `/cadastro`                  | Público             | Cadastro de cliente                                                 |
+| `/recuperar-senha`           | Público             | Solicita o e-mail de recuperação (indisponível: SMTP fora do ar)    |
+| `/redefinir-senha?token=...` | Público             | Define a nova senha (link do e-mail; indisponível: SMTP fora do ar) |
+| `/dashboard`                 | Logado              | ADMIN: painel; CLIENTE e VOLUNTARIO: loja                           |
+| `/loja`                      | CLIENTE, VOLUNTARIO | Catálogo de artigos religiosos                                      |
+| `/minhas-compras`            | CLIENTE             | Histórico de pedidos                                                |
+| `/caixa`                     | VOLUNTARIO          | Caixa presencial                                                    |
+| `/produtos`                  | ADMIN               | Gestão de produtos                                                  |
+| `/vendas-admin`              | ADMIN               | Vendas e pedidos                                                    |
+| `/financeiro`                | ADMIN               | Caixa e relatórios                                                  |
+| `/cadastro-voluntario`       | ADMIN               | Gestão de voluntários                                               |
+
+Após o login, todos vão para `/dashboard`. O `CLIENTE` não vê produtos da lanchonete (a API também os recusa em pedidos online).
+
+---
+
+## 3. Funcionalidades
+
+### CLIENTE
+
+- **Loja:** lista artigos religiosos com preços e estoque.
+- **Carrinho:** adicionar, alterar quantidade, remover itens e ver o total.
+- **Entrega:** digitar o CEP busca o endereço (ViaCEP, via API); o cliente informa **número** e, se quiser, **complemento**.
+- **Pagamento na entrega:** `PIX` ou `DINHEIRO`; em dinheiro, pode pedir troco informando o valor.
+- **Minhas compras:** histórico dos pedidos com itens e status.
+
+### VOLUNTARIO
+
+- **Caixa presencial** (`/caixa`): escolher produtos (lanchonete e artigos religiosos), definir quantidades, ver o total, escolher `DINHEIRO` ou `PIX` e registrar. A venda baixa o estoque e lança a entrada no caixa.
+
+### ADMIN
+
+- **Painel:** atalhos para Produtos, Vendas e caixa, Voluntários e Caixa e financeiro.
+- **Produtos:** criar, editar e excluir (a exclusão desativa o produto). Campos: nome, descrição, categoria, preço e estoque.
+- **Vendas:** listar vendas e pedidos e alterar o status (aguardando retirada, aguardando entrega, concluído, cancelado). Cancelar devolve o estoque.
+- **Voluntários:** cadastrar, editar, desativar e reativar.
+- **Financeiro:** resumo do caixa (entradas, saídas e saldo), histórico, registro de entradas e saídas manuais, exclusão de lançamentos manuais e exportação do relatório em **Excel** ou **CSV**.
+
+### Em todas as telas
+
+- Indicador de carregamento nas requisições.
+- Mensagens de sucesso e de erro; erros da API aparecem com o texto vindo do back-end.
+- Tratados: API fora do ar, timeout de 10 s, erro HTTP e sessão inválida.
+- Layout responsivo (desktop, tablet e smartphone).
+
+---
+
+## 4. Integração com a API
+
+- Cliente HTTP único em `src/services/api.ts` (Axios), com a URL de `VITE_API_URL`.
+- Após o login, o token JWT e os dados do usuário ficam no `localStorage` (`@AgnusGestao:token` e `@AgnusGestao:user`), mantendo a sessão ao recarregar a página. Cada requisição envia `Authorization: Bearer <token>`. O logout limpa esses dados.
+
+| Tela                        | Chamadas                                                                                                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Login, Cadastro             | `POST /auth/login`, `POST /auth/register`                                                                                                               |
+| Recuperar e redefinir senha | `POST /auth/forgot-password`, `POST /auth/reset-password`                                                                                               |
+| Loja, Produtos, Caixa       | `GET /produtos`; ADMIN: `POST`, `PUT`, `DELETE /produtos/:id`                                                                                           |
+| Loja (checkout)             | `GET /cep/:cep`, `POST /vendas/online`                                                                                                                  |
+| Minhas compras              | `GET /vendas/minhas-compras`                                                                                                                            |
+| Caixa presencial            | `POST /vendas/presencial`                                                                                                                               |
+| Vendas (ADMIN)              | `GET /vendas`, `PATCH /vendas/:id/status`                                                                                                               |
+| Voluntários (ADMIN)         | `GET`, `POST`, `PUT`, `DELETE /usuarios`                                                                                                                |
+| Financeiro (ADMIN)          | `GET /movimentacoes`, `GET /movimentacoes/resumo`, `POST /movimentacoes`, `DELETE /movimentacoes/:id`, `GET /movimentacoes/exportar?formato=excel\|csv` |
+
+Métodos, campos e respostas de cada endpoint: README do back-end.
+
+---
+
+## 5. Roteiro de testes
+
+Com back-end e front-end rodando, em `http://localhost:5180`:
+
+| Perfil         | Passos                                                                                                                                                                                                                                   |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Qualquer       | Login com credenciais inválidas mostra erro → login válido leva ao `/dashboard` → acessar uma rota de outro perfil volta ao `/dashboard` → sair e abrir `/produtos` leva ao login                                                        |
+| `ADMIN`        | Cadastrar, editar e excluir um produto → cadastrar um voluntário → registrar uma entrada e uma saída e conferir o resumo → exportar o relatório → alterar o status de um pedido                                                          |
+| `VOLUNTARIO`   | Entrar em `/caixa` → adicionar produtos e quantidades → escolher o pagamento → registrar a venda → conferir a baixa do estoque e a entrada no Financeiro (como ADMIN)                                                                    |
+| `CLIENTE`      | Cadastrar-se → adicionar itens ao carrinho, alterar e remover → informar CEP (ex.: `35570000`) e conferir o endereço → preencher número → escolher pagamento (com troco, se `DINHEIRO`) → finalizar → ver o pedido em **Minhas compras** |
+| Responsividade | Repetir os fluxos em desktop, tablet e smartphone (menus, formulários, tabelas e modais)                                                                                                                                                 |
+
+---
+
+## 6. Tecnologias e estrutura
+
+| Tecnologia            | Uso                                 |
+| --------------------- | ----------------------------------- |
+| React 19 + TypeScript | Interface                           |
+| Vite                  | Servidor de desenvolvimento e build |
+| React Router DOM 7    | Rotas e proteção por perfil         |
+| Axios                 | Requisições à API                   |
+| Context API           | Sessão e perfil (`AuthContext`)     |
+| Lucide React          | Ícones                              |
 
 ```text
 src/
-├── assets/        # Recursos estáticos (imagens, ícones, logos do grupo)
-├── components/    # Componentes reutilizáveis (Header, Footer, Inputs, Modais, Cards)
-├── pages/         # Páginas da aplicação (Login, Dashboard, Membros, Encontros)
-├── routes/        # Configuração de rotas públicas e rotas protegidas
-├── services/      # Configuração do Axios e chamadas para a API do Back-End
-└── styles/        # Estilos globais e temas
+├── components/   layout (Header, Footer, MainLayout) e componentes reutilizáveis (VendaPresencial, CardMembro)
+├── contexts/     AuthContext.tsx — login, logout e perfil
+├── pages/        telas (Login, Loja, Produtos, VendasAdmin, FinanceiroAdmin, ...)
+├── routes/       AppRoutes.tsx — rotas e controle por perfil; PrivateRoute.tsx
+├── services/     api.ts — cliente Axios
+├── types/        tipos TypeScript
+├── assets/       imagens
+├── App.tsx
+└── main.tsx
 ```
-## Progresso do Desenvolvimento
-
-- [x] **Semana 1: Configuração do Ambiente e Estrutura Base**
-  - Setup do projeto React com Vite e TypeScript.
-  - Configuração do container Docker para o ambiente de desenvolvimento.
-  - Criação dos componentes estruturais de layout (`Header` e `Footer`).
-
-- [x] **Semana 2: Consumo da API (Read), Componentização e Comunicação com Docker**
-  - **Integração com API REST:** Configuração do cliente HTTP Axios (`api.ts`) integrado ao container Back-End Node.js/Express na porta `3000`.
-  - **Tratamento de Comunicação Cross-Origin:** Configuração de suporte e liberação de CORS no servidor para viabilizar as requisições originadas do Front-End Vite (`http://localhost:5173`).
-  - **Operação de Leitura (Read):** Implementação de requisições assíncronas (GET) na rota `/membros` para renderização dinâmica dos dados na interface.
-  - **Gestão Abrangente de Estados:** Controle completo de fluxo de dados com React Hooks (`useState` e `useEffect`), prevendo estados de carregamento (*loading*), tratamento visual de erros de conexão e exibição de estado vazio (*empty state*).
-  - **Componentização Reutilizável:** Modularização do layout através do componente `CardMembro` para isolar a responsabilidade de apresentação visual dos dados retornados da API.
-  
-  - [x] **Semana 3: Autenticação, Gerenciamento de Estado Global e Rotas Protegidas**
-  - **Contexto Global de Autenticação (`AuthContext`):** Criação do provedor de autenticação com React Context API para gerenciamento de estado do usuário logado e métodos de `login` e `logout`.
-  - **Gerenciamento de Sessão e Persistência:** Armazenamento seguro e inicialização automática de sessão persistente via `localStorage` com as chaves `@AgnusGestao:token` e `@AgnusGestao:user`.
-  - **Injeção Automática de Token:** Configuração das requisições via Axios enviando o cabeçalho `Authorization: Bearer <token>` para rotas protegidas da API.
-  - **Roteamento Protegido (`PrivateRoute`):** Implementação de componente guardião de rota interceptando acessos não autenticados e realizando o redirecionamento automático para a tela de `/login`.
-  - **Formulário de Autenticação e Navegação:** Tratamento e integração do formulário de login com navegação declarativa via `useNavigate` para redirecionamento imediato para o `/dashboard` após sucesso.
-
-  - [x] **Semana 4: Navegação, Layout Reutilizável, Estrutura de Páginas e Responsividade**
-    - **Arquitetura de Layout Reutilizável (`MainLayout`, `Header`, `Footer`):** Implementação de uma estrutura unificada e padronizada utilizando o padrão Wrapper/Children (`React.ReactNode`), centralizando o cabeçalho fixo com barra de navegação, área principal de conteúdo e rodapé institucional.
-    - **Navegação Declarativa e Central de Rotas (`AppRoutes`):** Mapeamento e proteção de rotas via React Router DOM (`Routes`, `Route`, `Navigate`), garantindo o fluxo contínuo e a blindagem de telas restritas via `PrivateRoute`.
-    - **Design System e Identidade Sacra Padronizada:** Consolidação da paleta de cores institucional do Grupo de Oração Agnus Dei (Vinho Sacro `#4a0e17`, Dourado `#d4af37` e Creme `#faf8f5`), alinhando acessibilidade visual, contraste e tipografia para eventos.
-    - **Responsividade Multi-Dispositivo (Mobile, Tablet e Desktop):** Desenvolvimento de layout dinâmico adaptável via CSS Breakpoints e navegação retrátil no cabeçalho (Menu Hambúrguer com `Menu` / `X` da biblioteca `lucide-react`) para garantir usabilidade perfeita em celulares e tablets.
-    - **Sistema de Navegação Flutuante (One-Page Scroll):** Ancoragem e rolagem suave (`scrollIntoView` com `scroll-behavior: smooth`) integrada ao menu superior, permitindo transições fluidas entre as seções de Início, Lanchonete, Encontros, História, Músicas, Retiros e Apoio.
-    - **Catálogo Interativo de Produtos e Simulação de Vendas (PDV):** Exibição dos itens comercializados nos encontros (Lanchonete e Artigos Religiosos) com suporte a filtragem por categoria, exibição de estoque e carrinho de compras interativo em tempo real para os membros servidores.
-    - **Integração de Mídia Externa (Spotify Player Embed):** Incorporação nativa via Iframe da conta oficial de artista do grupo no Spotify (`6TTYFyM6N4SZDhKxnHCzTF`), disponibilizando reprodutor de louvores diretamente na aplicação.
-    - **Apoio Institucional e Integração PIX:** Módulo dedicado para suporte financeiro das missões com funcionalidade de cópia rápida em um clique da chave PIX institucional (`agnusdeirenovacao@gmail.com`) e feedback visual dinâmico.

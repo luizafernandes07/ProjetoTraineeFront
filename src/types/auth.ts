@@ -1,18 +1,22 @@
-// src/types/auth.ts
+export type PerfilUsuario = 'ADMIN' | 'VOLUNTARIO' | 'CLIENTE';
 
 export interface LoginCredentials {
   email: string;
-  pass?: string;     // Para dar suporte se usar 'pass'
-  password?: string; // Para dar suporte se usar 'password'
+  senha?: string;
+  password?: string;
+  pass?: string;
 }
 
 export interface User {
   id: string | number;
   nome: string;
   email: string;
+  perfil: PerfilUsuario;
 }
 
 export interface AuthResponse {
   token: string;
-  user: User;
+  user?: User;
+  usuario?: User;
+  mensagem?: string;
 }
